@@ -1,5 +1,7 @@
 # Tinkoff investing exporter
 
+![Docker Pulls](https://img.shields.io/docker/pulls/byumov/tinkoff_investing_exporter.svg) ![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/byumov/tinkoff_investing_exporter.svg) ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/byumov/tinkoff_investing_exporter.svg)
+
 ## Usage
 
 First, get token from Tinkoff: [https://tinkoffcreditsystems.github.io/invest-openapi/auth/](https://tinkoffcreditsystems.github.io/invest-openapi/auth/)
