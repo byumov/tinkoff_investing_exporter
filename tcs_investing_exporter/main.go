@@ -7,7 +7,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -15,18 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func getEnvInt(key string, fallback int) int {
-	if value, ok := os.LookupEnv(key); ok {
-		valueInt, err := strconv.Atoi(value)
-		if err != nil {
-			log.Fatalf("Bad value for %q Can't convert '%v' to int: %v", key, value, err)
-		}
-		return valueInt
-	}
-	return fallback
-}
-
-func recordMetrics(token string, updateInterval int) {
+func recordMetrics(token string) {
 
 	labels := []string{"currency", "name", "ticker", "type", "account"}
 
@@ -78,7 +66,7 @@ func recordMetrics(token string, updateInterval int) {
 
 				labelsValues := []string{
 					string(item.AveragePositionPrice.Currency),
-					item.Name, item.Ticker,
+					item.Name,	item.Ticker,
 					string(item.InstrumentType),
 					string(account.Type)}
 
@@ -91,9 +79,8 @@ func recordMetrics(token string, updateInterval int) {
 			}
 
 		}
-
-		time.Sleep(time.Duration(updateInterval) * time.Second)
-
+		// update data every 2 minute
+		time.Sleep(120 * time.Second)
 	}()
 }
 
@@ -104,14 +91,9 @@ func main() {
 		log.Fatal("Env 'TCS_TOKEN' must be set, exit")
 	}
 
-	updateInterval := getEnvInt("TCS_UPDATE_INTERVAL", 120)
-	listenPort := getEnvInt("TCS_LISTEN_PORT", 2112)
-
-	recordMetrics(token, updateInterval)
-
-	log.Infof("Starting server at port %d...", listenPort)
+	recordMetrics(token)
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(fmt.Sprintf(":%d", listenPort), nil)
+	http.ListenAndServe(":2112", nil)
 
 }
