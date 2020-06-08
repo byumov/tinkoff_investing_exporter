@@ -15,6 +15,30 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+var (
+	labels = []string{"currency", "name", "ticker", "type", "account"}
+
+	tcsItemTotalPrice = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: fmt.Sprintf("tcs_item"),
+		Help: "Total price for portfolio item"},
+		labels)
+
+	tcsExpectedYield = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: fmt.Sprintf("tcs_expected_yield"),
+		Help: "Total expected yield for portfolio item"},
+		labels)
+
+	tcsCurrency = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: fmt.Sprintf("tcs_currency"),
+		Help: "Currencies in rubles"},
+		labels)
+
+	tcsItemCurrentPrice = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: fmt.Sprintf("tcs_current_price"),
+		Help: "Current item price"},
+		labels)
+)
+
 func getEnvInt(key string, fallback int) int {
 	if value, ok := os.LookupEnv(key); ok {
 		valueInt, err := strconv.Atoi(value)
@@ -27,28 +51,6 @@ func getEnvInt(key string, fallback int) int {
 }
 
 func recordMetrics(token string, updateInterval int) {
-
-	labels := []string{"currency", "name", "ticker", "type", "account"}
-
-	tcsItemTotalPrice := promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: fmt.Sprintf("tcs_item"),
-		Help: "Total price for portfolio item"},
-		labels)
-
-	tcsExpectedYield := promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: fmt.Sprintf("tcs_expected_yield"),
-		Help: "Total expected yield for portfolio item"},
-		labels)
-
-	tcsCurrency := promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: fmt.Sprintf("tcs_currency"),
-		Help: "Currencies in rubles"},
-		labels)
-
-	tcsItemCurrentPrice := promauto.NewGaugeVec(prometheus.GaugeOpts{
-		Name: fmt.Sprintf("tcs_current_price"),
-		Help: "Current item price"},
-		labels)
 
 	go func() {
 		for {
