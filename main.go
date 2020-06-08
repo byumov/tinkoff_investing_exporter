@@ -51,49 +51,48 @@ func recordMetrics(token string, updateInterval int) {
 		labels)
 
 	go func() {
+		for {
+			client := sdk.NewRestClient(token)
 
-		client := sdk.NewRestClient(token)
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		accounts, err := client.Accounts(ctx)
-		if err != nil {
-			log.Fatalf("Can't get accounts: %v", err)
-		}
-
-		for _, account := range accounts {
-			portfolio, err := client.Portfolio(ctx, account.ID)
+			accounts, err := client.Accounts(ctx)
 			if err != nil {
-				log.Fatalf("Can't get portfolio for account %v: %v", account.ID, err)
+				log.Fatalf("Can't get accounts: %v", err)
 			}
 
-			for _, item := range portfolio.Positions {
-
-				// get current price
-				orders, err := client.Orderbook(ctx, 5, item.FIGI)
+			for _, account := range accounts {
+				portfolio, err := client.Portfolio(ctx, account.ID)
 				if err != nil {
-					log.Fatalf("Can't get orders for %q: %v", item.Ticker, err)
+					log.Fatalf("Can't get portfolio for account %v: %v", account.ID, err)
 				}
 
-				labelsValues := []string{
-					string(item.AveragePositionPrice.Currency),
-					item.Name, item.Ticker,
-					string(item.InstrumentType),
-					string(account.Type)}
+				for _, item := range portfolio.Positions {
 
-				tcsItemTotalPrice.WithLabelValues(labelsValues...).Set(item.AveragePositionPrice.Value * float64(item.Balance))
-				if item.InstrumentType == sdk.InstrumentTypeCurrency {
-					tcsCurrency.WithLabelValues(labelsValues...).Set(item.AveragePositionPrice.Value)
+					// get current price
+					orders, err := client.Orderbook(ctx, 5, item.FIGI)
+					if err != nil {
+						log.Fatalf("Can't get orders for %q: %v", item.Ticker, err)
+					}
+
+					labelsValues := []string{
+						string(item.AveragePositionPrice.Currency),
+						item.Name, item.Ticker,
+						string(item.InstrumentType),
+						string(account.Type)}
+
+					tcsItemTotalPrice.WithLabelValues(labelsValues...).Set(item.AveragePositionPrice.Value * float64(item.Balance))
+					if item.InstrumentType == sdk.InstrumentTypeCurrency {
+						tcsCurrency.WithLabelValues(labelsValues...).Set(item.AveragePositionPrice.Value)
+					}
+					tcsExpectedYield.WithLabelValues(labelsValues...).Set(item.ExpectedYield.Value)
+					tcsItemCurrentPrice.WithLabelValues(labelsValues...).Set(orders.LastPrice)
 				}
-				tcsExpectedYield.WithLabelValues(labelsValues...).Set(item.ExpectedYield.Value)
-				tcsItemCurrentPrice.WithLabelValues(labelsValues...).Set(orders.LastPrice)
+
 			}
-
+			time.Sleep(time.Duration(updateInterval) * time.Second)
 		}
-
-		time.Sleep(time.Duration(updateInterval) * time.Second)
-
 	}()
 }
 
