@@ -1,0 +1,44 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build_binary:
+    runs-on: ubuntu-latest
+    name: Build and publish to docker registry and github releases
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: install go
+      run: |
+        curl https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz | sudo tar xz -C /usr/local
+        export PATH=$PATH:/usr/local/go/bin
+        go version
+
+    - name: build binary
+      run: |
+        GOARCH=amd64 GOOS=linux go build -o tinkoff_investing_exporter.${{ github.ref }}.linux.amd64 .
+        GOARCH=amd64 GOOS=darwin go build -o tinkoff_investing_exporter.${{ github.ref }}.darwin.amd64 .
+        GOARCH=amd64 GOOS=windows go build -o tinkoff_investing_exporter.${{ github.ref }}.windows.amd64.exe .
+
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_LOGIN }} 
+        password: ${{ secrets.DOCKER_TOKEN }}
+        repository: byumov/tinkoff_investing_exporter
+        tag_with_ref: true
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: version ${{ github.ref }}
+        draft: false
+        prerelease: false

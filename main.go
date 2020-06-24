@@ -58,7 +58,6 @@ func recordMetrics(token string, updateInterval int) {
 
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
-
 			accounts, err := client.Accounts(ctx)
 			if err != nil {
 				log.Fatalf("Can't get accounts: %v", err)
@@ -93,6 +92,7 @@ func recordMetrics(token string, updateInterval int) {
 				}
 
 			}
+			log.Debugf("Data updated, wait for %d sec", updateInterval)
 			time.Sleep(time.Duration(updateInterval) * time.Second)
 		}
 	}()
@@ -100,10 +100,16 @@ func recordMetrics(token string, updateInterval int) {
 
 func main() {
 
+	_, exist := os.LookupEnv("TCS_DEBUG")
+	if exist {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	token, exist := os.LookupEnv("TCS_TOKEN")
 	if !exist {
 		log.Fatal("Env 'TCS_TOKEN' must be set, exit")
 	}
+
 
 	updateInterval := getEnvInt("TCS_UPDATE_INTERVAL", 120)
 	listenPort := getEnvInt("TCS_LISTEN_PORT", 2112)

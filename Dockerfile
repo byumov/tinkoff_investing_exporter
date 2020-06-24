@@ -1,7 +1,9 @@
-FROM golang:1.14.4-alpine3.12
-RUN apk update && apk upgrade && \
-    apk add --no-cache git
-RUN go get github.com/byumov/tinkoff_investing_exporter
-RUN go install github.com/byumov/tinkoff_investing_exporter
+FROM golang:1.14 AS build
+ADD . /app
+WORKDIR /app
+RUN CGO_ENABLED=0 go build .
+
+FROM alpine:3.12
+COPY --from=build /app/tinkoff_investing_exporter /app/tinkoff_investing_exporter
 EXPOSE 2112
-CMD $GOPATH/bin/tinkoff_investing_exporter
+CMD /app/tinkoff_investing_exporter
