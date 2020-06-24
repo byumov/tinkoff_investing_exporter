@@ -1,4 +1,4 @@
-# Tinkoff investing exporter
+# Tinkoff investing exporter for Prometheus
 
 ![.github/workflows/mail.yml](https://github.com/byumov/tinkoff_investing_exporter/workflows/.github/workflows/mail.yml/badge.svg)
 [![Docker Pulls](https://img.shields.io/docker/pulls/byumov/tinkoff_investing_exporter.svg)](https://hub.docker.com/r/byumov/tinkoff_investing_exporter)
