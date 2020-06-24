@@ -1,6 +1,6 @@
 # Tinkoff investing exporter for Prometheus
 
-![.github/workflows/mail.yml](https://github.com/byumov/tinkoff_investing_exporter/workflows/.github/workflows/mail.yml/badge.svg)
+[![.github/workflows/mail.yml](https://github.com/byumov/tinkoff_investing_exporter/workflows/.github/workflows/mail.yml/badge.svg)](https://github.com/byumov/tinkoff_investing_exporter/actions)
 [![Docker Pulls](https://img.shields.io/docker/pulls/byumov/tinkoff_investing_exporter.svg)](https://hub.docker.com/r/byumov/tinkoff_investing_exporter)
 [![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/byumov/tinkoff_investing_exporter.svg)](https://hub.docker.com/r/byumov/tinkoff_investing_exporter/builds)
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/byumov/tinkoff_investing_exporter.svg)](https://hub.docker.com/r/byumov/tinkoff_investing_exporter/builds)
@@ -29,7 +29,6 @@ TCS_TOKEN="YOUR_TOKEN" ./tinkoff_investing_exporter
 `TCS_DEBUG`, set with any value for more verbosity
 
 `TCS_LISTEN_PORT`, 2112 by default
-
 
 ## Example dashboard
 
